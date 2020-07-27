@@ -3,7 +3,7 @@ import { Menu, Icon } from 'semantic-ui-react';
 
 const NavBar = () => {
   return (
-    <Menu secondary color="teal">
+    <Menu color="teal">
       <Menu.Item header>
         <Icon name="search" />
         Profile Finder

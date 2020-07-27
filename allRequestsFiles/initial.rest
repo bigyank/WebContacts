@@ -1,0 +1,25 @@
+#Viewing all contacts
+get http://localhost:3001/api/contacts
+
+###
+
+#Adding Contacts
+post http://localhost:3001/api/contacts
+Content-Type: application/json
+
+{
+  "name": "Aman Sheokand",
+  "contacts": {
+    "url": "www.fb.com/amansheokand234",
+    "site": "Facebook"
+  }
+}
+###
+#Adding profile entries to contact.
+post http://localhost:3001/api/contacts/5f1f0240fb0bdc27ccc66f34/url
+Content-Type: application/json
+
+{
+  "url": "www.youtube.com/instamojo",
+  "site": "Youtube"
+}

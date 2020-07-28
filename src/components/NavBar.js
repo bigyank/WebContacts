@@ -5,7 +5,7 @@ const NavBar = () => {
   return (
     <Menu color="teal">
       <Menu.Item header>
-        <Icon name="search" />
+        <Icon name="user circle outline" />
         Profile Finder
       </Menu.Item>
       <Menu.Item as="a" name="Home" active />

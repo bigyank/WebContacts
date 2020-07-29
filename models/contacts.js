@@ -29,7 +29,7 @@ const contactSchema = new Schema({
 // throw error for unique items
 contactSchema.plugin(uniqueValidator);
 
-const cleanDatabase = (schemaName) => {
+const cleanDatabaseFields = (schemaName) => {
   /*
    * replaces _id with id
    * converts _id as string from objectID
@@ -44,8 +44,8 @@ const cleanDatabase = (schemaName) => {
   });
 };
 
-cleanDatabase(contactSchema);
-cleanDatabase(sitesSchema);
+cleanDatabaseFields(contactSchema);
+cleanDatabaseFields(sitesSchema);
 
 const Contact = mongoose.model("Contact", contactSchema);
 

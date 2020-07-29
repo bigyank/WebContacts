@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+var createError = require("http-errors");
 const Contact = require("../models/contacts");
 
 // get all contacts for a specific person
@@ -7,6 +8,10 @@ const Contact = require("../models/contacts");
 router.get("/:id", async (req, res) => {
   const { id } = req.params;
   const person = await Contact.findById(id);
+  if (!person) {
+    throw new createError.NotFound();
+  }
+
   res.status(200).send(person);
 });
 
@@ -19,6 +24,11 @@ router.put("/:id", async (req, res) => {
   const updatedPerson = await Contact.findByIdAndUpdate(id, body, {
     new: true,
   });
+
+  if (!updatedPerson) {
+    throw new createError.NotFound();
+  }
+
   res.status(200).send(updatedPerson);
 });
 
@@ -37,6 +47,11 @@ router.post("/:id/url", async (req, res) => {
   const body = req.body;
 
   const person = await Contact.findById(id);
+
+  if (!person) {
+    throw new createError.NotFound();
+  }
+
   person.contacts = [...person.contacts, body];
   const savedPerson = await person.save();
 
@@ -49,6 +64,10 @@ router.delete("/:id/url/:urlID", async (req, res) => {
   const { id } = req.params;
   const { urlID } = req.params;
   const person = await Contact.findById(id);
+
+  if (!person) {
+    throw new createError.NotFound();
+  }
 
   person.contacts = person.contacts.filter((urls) => urls.id !== urlID);
   await person.save();

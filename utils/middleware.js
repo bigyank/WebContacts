@@ -9,7 +9,9 @@ const errorHandler = (error, _request, response, next) => {
     case "CastError":
       return response.status(400).send({ error: "malformatted id" });
     case "ValidationError":
-      return response.status(400).json({ error: error.message });
+      return response.status(400).send({ error: error.message });
+    case "NotFoundError":
+      return response.status(400).send({ error: error.message });
     default:
       next(error);
   }

@@ -47,7 +47,7 @@ const AddContactForm = ({ setContacts }) => {
         />
         <Form.Input
           required
-          placeholder="Enter site URL"
+          placeholder="For example, www.facebook.com"
           type="text"
           label="URL"
           value={url}
@@ -62,7 +62,13 @@ const AddContactForm = ({ setContacts }) => {
           onChange={(e, data) => setSite(data.value)}
         />
       </Form.Group>
-      <Button color="teal" icon labelPosition="left" type="submit">
+      <Button
+        animated="vertical"
+        color="teal"
+        icon
+        labelPosition="left"
+        type="submit"
+      >
         <Icon name="add user" />
         Add new contact
       </Button>

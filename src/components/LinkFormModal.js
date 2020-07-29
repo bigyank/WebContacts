@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import contactService from '../services/contacts';
-import { Modal, Header, Form, Button, Icon } from 'semantic-ui-react';
+import { Modal, Header, Form, Button } from 'semantic-ui-react';
 
-const AddLinkModal = ({ id, contacts, setContacts }) => {
+const LinkFormModal = ({ id, urlId, contacts, setContacts, type }) => {
   const [url, setUrl] = useState('');
   const [site, setSite] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
@@ -25,17 +25,37 @@ const AddLinkModal = ({ id, contacts, setContacts }) => {
 
     const targetContact = contacts.find((c) => c.id === id);
 
-    const updatedContact = {
-      ...targetContact,
-      contacts: targetContact.contacts.concat({ url, site }),
-    };
+    if (type === 'add') {
+      const updatedContact = {
+        ...targetContact,
+        contacts: targetContact.contacts.concat(linkObject),
+      };
 
-    try {
-      await contactService.addLink(id, linkObject);
-      setContacts(contacts.map((c) => (c.id !== id ? c : updatedContact)));
-      handleClose();
-    } catch (error) {
-      console.error(error);
+      try {
+        await contactService.addLink(id, linkObject);
+        setContacts(contacts.map((c) => (c.id !== id ? c : updatedContact)));
+        handleClose();
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+    if (type === 'edit') {
+      const updatedContactsKey = targetContact.contacts.map((t) =>
+        t.id !== urlId ? t : { ...linkObject, id: urlId }
+      );
+      const updatedContact = {
+        ...targetContact,
+        contacts: updatedContactsKey,
+      };
+
+      try {
+        await contactService.editLink(id, urlId, { ...linkObject, id: urlId });
+        setContacts(contacts.map((c) => (c.id !== id ? c : updatedContact)));
+        handleClose();
+      } catch (error) {
+        console.error(error);
+      }
     }
   };
 
@@ -47,25 +67,33 @@ const AddLinkModal = ({ id, contacts, setContacts }) => {
     { key: 'yt', text: 'Youtube', value: 'Youtube', icon: 'youtube' },
   ];
 
+  const isTypeEdit = type === 'edit';
+
   return (
     <Modal
       trigger={
-        <Button size="mini" onClick={handleOpen}>
-          <Icon name="plus" />
-          Add
-        </Button>
+        <Button
+          color={isTypeEdit ? 'blue' : 'green'}
+          size="small"
+          onClick={handleOpen}
+          floated={isTypeEdit ? 'right' : 'left'}
+          icon={isTypeEdit ? 'edit' : 'add'}
+          content={isTypeEdit ? undefined : 'Add'}
+        />
       }
       open={modalOpen}
       onClose={handleClose}
       closeIcon
       style={{ padding: '10px' }}
     >
-      <Header content="Add new link to contact" />
+      <Header
+        content={isTypeEdit ? 'Edit the link' : 'Add new link to contact'}
+      />
       <Modal.Content>
         <Form onSubmit={addNewLink}>
           <Form.Input
             required
-            placeholder="Enter site URL"
+            placeholder="For example, www.facebook.com"
             type="text"
             label="URL"
             value={url}
@@ -80,7 +108,7 @@ const AddLinkModal = ({ id, contacts, setContacts }) => {
             onChange={(e, data) => setSite(data.value)}
           />
           <Button type="submit" color="green" floated="right">
-            Add
+            {isTypeEdit ? 'Edit' : 'Add'}
           </Button>
         </Form>
       </Modal.Content>
@@ -88,4 +116,4 @@ const AddLinkModal = ({ id, contacts, setContacts }) => {
   );
 };
 
-export default AddLinkModal;
+export default LinkFormModal;

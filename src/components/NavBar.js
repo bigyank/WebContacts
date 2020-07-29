@@ -1,15 +1,29 @@
 import React from 'react';
 import { Menu, Icon } from 'semantic-ui-react';
 
-const NavBar = () => {
+const NavBar = ({ page, setPage }) => {
+  const handleNav = (e, data) => {
+    setPage(data.name);
+  };
+
   return (
     <Menu color="teal">
       <Menu.Item header>
         <Icon name="user circle outline" />
         Profile Finder
       </Menu.Item>
-      <Menu.Item as="a" name="Home" active />
-      <Menu.Item as="a" name="About" />
+      <Menu.Item
+        as="a"
+        name="Home"
+        active={page === 'Home'}
+        onClick={handleNav}
+      />
+      <Menu.Item
+        as="a"
+        name="About"
+        active={page === 'About'}
+        onClick={handleNav}
+      />
     </Menu>
   );
 };

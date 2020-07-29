@@ -6,8 +6,8 @@ const Contact = require("../models/contacts");
 
 router.get("/:id", async (req, res) => {
   const { id } = req.params;
-  const specificContact = await Contact.findById(id);
-  res.status(200).send(specificContact);
+  const person = await Contact.findById(id);
+  res.status(200).send(person);
 });
 
 // edit existing data

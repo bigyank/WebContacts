@@ -11,9 +11,9 @@ router.post("/", async (req, res, next) => {
   const body = req.body;
 
   try {
-    const newContact = new Contact(body);
-    const savedContact = await newContact.save();
-    return res.status(201).send(savedContact);
+    const newPerson = new Contact(body);
+    const savedPerson = await newPerson.save();
+    return res.status(201).send(savedPerson);
   } catch (error) {
     next(error);
   }

@@ -1,5 +1,8 @@
 const express = require("express");
+
+require("express-async-errors");
 require("./database/db");
+
 const cors = require("cors");
 const contactRouter = require("./routes/contacts");
 const specificContactRouter = require("./routes/specificContacts");

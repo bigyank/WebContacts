@@ -11,7 +11,8 @@ const sitesSchema = new Schema({
   },
   site: {
     type: String,
-    default: "Site",
+    required: true,
+    trim: true,
   },
 });
 
@@ -28,24 +29,23 @@ const contactSchema = new Schema({
 // throw error for unique items
 contactSchema.plugin(uniqueValidator);
 
-// remove _id in contactSchema and replace it with id
-// make the id of type String instead of Objectid
+const cleanDatabase = (schemaName) => {
+  /*
+   * replaces _id with id
+   * converts _id as string from objectID
+   * deletes __v before sending
+   */
+  schemaName.set("toJSON", {
+    transform: (_document, returnedObject) => {
+      returnedObject.id = returnedObject._id.toString();
+      delete returnedObject._id;
+      delete returnedObject.__v;
+    },
+  });
+};
 
-contactSchema.set("toJSON", {
-  transform: (document, returnedObject) => {
-    returnedObject.id = returnedObject._id.toString();
-    delete returnedObject._id;
-    delete returnedObject.__v;
-  },
-});
-
-sitesSchema.set("toJSON", {
-  transform: (document, returnedObject) => {
-    returnedObject.id = returnedObject._id.toString();
-    delete returnedObject._id;
-    delete returnedObject.__v;
-  },
-});
+cleanDatabase(contactSchema);
+cleanDatabase(sitesSchema);
 
 const Contact = mongoose.model("Contact", contactSchema);
 

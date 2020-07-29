@@ -7,16 +7,11 @@ router.get("/", async (_req, res) => {
 });
 
 // add the person for the first time
-router.post("/", async (req, res, next) => {
+router.post("/", async (req, res) => {
   const body = req.body;
-
-  try {
-    const newPerson = new Contact(body);
-    const savedPerson = await newPerson.save();
-    return res.status(201).send(savedPerson);
-  } catch (error) {
-    next(error);
-  }
+  const newPerson = new Contact(body);
+  const savedPerson = await newPerson.save();
+  return res.status(201).send(savedPerson);
 });
 
 module.exports = router;

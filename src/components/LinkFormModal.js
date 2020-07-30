@@ -93,7 +93,7 @@ const LinkFormModal = ({
       trigger={
         <Button
           color={isTypeEdit ? 'twitter' : 'green'}
-          size="small"
+          size={isTypeEdit ? 'tiny' : 'small'}
           onClick={handleOpen}
           floated={isTypeEdit ? 'right' : 'left'}
           icon={isTypeEdit ? 'edit' : 'add'}

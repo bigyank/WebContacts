@@ -108,7 +108,7 @@ const ContactCard = ({
                       handleLinkDelete(contact.id, c.id, c.url, c.site)
                     }
                     floated="right"
-                    size="small"
+                    size="tiny"
                     icon="delete"
                   />
                 </List.Header>

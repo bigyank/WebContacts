@@ -3,14 +3,23 @@ import contactService from '../services/contacts';
 import LinkFormModal from './LinkFormModal';
 import { Card, List, Button, Icon } from 'semantic-ui-react';
 
-const ContactCard = ({ contact, contacts, setContacts }) => {
+const ContactCard = ({
+  contact,
+  contacts,
+  setContacts,
+  options,
+  handleOptionAddition,
+  notify,
+}) => {
   const handleContactDelete = async (id) => {
     if (window.confirm(`Delete contact "${contact.name}"?`)) {
       try {
         await contactService.deleteContact(id);
         setContacts(contacts.filter((c) => c.id !== id));
+        notify(`Contact '${contact.name}' deleted!`, 'green');
       } catch (error) {
-        console.error(error);
+        console.error(error.message);
+        notify(`${error.message}`, 'red');
       }
     }
   };
@@ -26,11 +35,24 @@ const ContactCard = ({ contact, contacts, setContacts }) => {
       try {
         await contactService.deleteLink(id, urlId);
         setContacts(contacts.map((c) => (c.id !== id ? c : updatedContact)));
+        notify(`${urlName} link '${urlLink}' deleted!`, 'green');
       } catch (error) {
-        console.error(error);
+        console.error(error.message);
+        notify(`${error.message}`, 'red');
       }
     }
   };
+
+  const siteIcons = [
+    'facebook',
+    'github',
+    'youtube',
+    'twitter',
+    'instagram',
+    'blogger',
+    'linkedin',
+    'reddit',
+  ];
 
   return (
     <Card fluid>
@@ -48,22 +70,40 @@ const ContactCard = ({ contact, contacts, setContacts }) => {
         </h2>
       </Card.Content>
       <Card.Content>
-        <List divided relaxed>
+        <List divided relaxed animated>
           {contact.contacts.map((c) => (
             <List.Item key={c + c.id}>
-              <List.Icon name={c.site.toLowerCase()}></List.Icon>
+              <List.Icon
+                name={
+                  siteIcons.includes(c.site.toLowerCase())
+                    ? c.site.toLowerCase()
+                    : 'add circle'
+                }
+                color="black"
+              />
               <List.Content>
-                <List.Header as="a">
-                  {c.url}
+                <List.Header>
+                  <a
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    href={`https://${c.url}`}
+                  >
+                    {c.url}
+                  </a>
                   <LinkFormModal
                     id={contact.id}
                     urlId={c.id}
                     contacts={contacts}
                     setContacts={setContacts}
+                    options={options}
+                    handleOptionAddition={handleOptionAddition}
+                    urlToEdit={c.url}
+                    siteToEdit={c.site}
                     type="edit"
+                    notify={notify}
                   />
                   <Button
-                    color="red"
+                    color="google plus"
                     onClick={() =>
                       handleLinkDelete(contact.id, c.id, c.url, c.site)
                     }
@@ -81,7 +121,10 @@ const ContactCard = ({ contact, contacts, setContacts }) => {
           id={contact.id}
           contacts={contacts}
           setContacts={setContacts}
+          options={options}
+          handleOptionAddition={handleOptionAddition}
           type="add"
+          notify={notify}
         />
       </Card.Content>
     </Card>

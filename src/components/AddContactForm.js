@@ -2,7 +2,12 @@ import React, { useState } from 'react';
 import contactService from '../services/contacts';
 import { Form, Button, Icon } from 'semantic-ui-react';
 
-const AddContactForm = ({ setContacts }) => {
+const AddContactForm = ({
+  setContacts,
+  options,
+  handleOptionAddition,
+  notify,
+}) => {
   const [name, setName] = useState('');
   const [url, setUrl] = useState('');
   const [site, setSite] = useState('');
@@ -19,20 +24,19 @@ const AddContactForm = ({ setContacts }) => {
     };
 
     try {
-      const response = await contactService.addNew(contactObject);
-      setContacts((prevState) => prevState.concat(response));
+      const returnedObject = await contactService.addNew(contactObject);
+      setContacts((prevState) => prevState.concat(returnedObject));
+
+      notify(`New contact '${returnedObject.name}' added!`, 'green');
+
+      setName('');
+      setUrl('');
+      setSite('');
     } catch (error) {
-      console.error(error);
+      console.error(error.message);
+      notify(`${error.message}`, 'red');
     }
   };
-
-  const options = [
-    { key: 'fb', text: 'Facebook', value: 'Facebook', icon: 'facebook' },
-    { key: 'ig', text: 'Instagram', value: 'Instagram', icon: 'instagram' },
-    { key: 'tw', text: 'Twitter', value: 'Twitter', icon: 'twitter' },
-    { key: 'gh', text: 'Github', value: 'Github', icon: 'github' },
-    { key: 'yt', text: 'Youtube', value: 'Youtube', icon: 'youtube' },
-  ];
 
   return (
     <Form onSubmit={addNewContact}>
@@ -56,9 +60,13 @@ const AddContactForm = ({ setContacts }) => {
         <Form.Select
           required
           value={site}
-          label="Site Name"
           options={options}
+          label="Choose site name"
+          allowAdditions
+          selection
+          search
           placeholder="Select a site"
+          onAddItem={handleOptionAddition}
           onChange={(e, data) => setSite(data.value)}
         />
       </Form.Group>

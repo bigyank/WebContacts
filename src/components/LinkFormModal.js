@@ -2,9 +2,22 @@ import React, { useState } from 'react';
 import contactService from '../services/contacts';
 import { Modal, Header, Form, Button } from 'semantic-ui-react';
 
-const LinkFormModal = ({ id, urlId, contacts, setContacts, type }) => {
+const LinkFormModal = ({
+  id,
+  urlId,
+  contacts,
+  setContacts,
+  type,
+  options,
+  handleOptionAddition,
+  urlToEdit,
+  siteToEdit,
+  notify,
+}) => {
   const [url, setUrl] = useState('');
   const [site, setSite] = useState('');
+  const [editUrl, setEditUrl] = useState(urlToEdit);
+  const [editSite, setEditSite] = useState(siteToEdit);
   const [modalOpen, setModalOpen] = useState(false);
 
   const handleOpen = () => {
@@ -18,54 +31,60 @@ const LinkFormModal = ({ id, urlId, contacts, setContacts, type }) => {
   const addNewLink = async (e) => {
     e.preventDefault();
 
-    const linkObject = {
+    const newObject = {
       url,
       site,
     };
 
+    try {
+      const returnedObject = await contactService.addLink(id, newObject);
+      setContacts(contacts.map((c) => (c.id !== id ? c : returnedObject)));
+
+      notify(`New ${newObject.site} link '${newObject.url}' added`, 'green');
+
+      setUrl('');
+      setSite('');
+      handleClose();
+    } catch (error) {
+      console.error(error.message);
+      notify(`${error.message}`, 'red');
+    }
+  };
+
+  const editLink = async (e) => {
+    e.preventDefault();
+
+    const newObject = {
+      url: editUrl,
+      site: editSite,
+    };
+
     const targetContact = contacts.find((c) => c.id === id);
 
-    if (type === 'add') {
-      const updatedContact = {
-        ...targetContact,
-        contacts: targetContact.contacts.concat(linkObject),
-      };
+    try {
+      const returnedObject = await contactService.editLink(id, urlId, {
+        ...newObject,
+        id: urlId,
+      });
 
-      try {
-        await contactService.addLink(id, linkObject);
-        setContacts(contacts.map((c) => (c.id !== id ? c : updatedContact)));
-        handleClose();
-      } catch (error) {
-        console.error(error);
-      }
-    }
-
-    if (type === 'edit') {
       const updatedContactsKey = targetContact.contacts.map((t) =>
-        t.id !== urlId ? t : { ...linkObject, id: urlId }
+        t.id !== urlId ? t : returnedObject
       );
+
       const updatedContact = {
         ...targetContact,
         contacts: updatedContactsKey,
       };
 
-      try {
-        await contactService.editLink(id, urlId, { ...linkObject, id: urlId });
-        setContacts(contacts.map((c) => (c.id !== id ? c : updatedContact)));
-        handleClose();
-      } catch (error) {
-        console.error(error);
-      }
+      setContacts(contacts.map((c) => (c.id !== id ? c : updatedContact)));
+      notify(`${newObject.site} link edited to '${newObject.url}'`, 'green');
+      handleClose();
+    } catch (error) {
+      console.log(id, urlId, { ...newObject, id: urlId });
+      console.error(error.message);
+      notify(`${error.message}`, 'red');
     }
   };
-
-  const options = [
-    { key: 'fb', text: 'Facebook', value: 'Facebook', icon: 'facebook' },
-    { key: 'ig', text: 'Instagram', value: 'Instagram', icon: 'instagram' },
-    { key: 'tw', text: 'Twitter', value: 'Twitter', icon: 'twitter' },
-    { key: 'gh', text: 'Github', value: 'Github', icon: 'github' },
-    { key: 'yt', text: 'Youtube', value: 'Youtube', icon: 'youtube' },
-  ];
 
   const isTypeEdit = type === 'edit';
 
@@ -73,7 +92,7 @@ const LinkFormModal = ({ id, urlId, contacts, setContacts, type }) => {
     <Modal
       trigger={
         <Button
-          color={isTypeEdit ? 'blue' : 'green'}
+          color={isTypeEdit ? 'twitter' : 'green'}
           size="small"
           onClick={handleOpen}
           floated={isTypeEdit ? 'right' : 'left'}
@@ -90,22 +109,30 @@ const LinkFormModal = ({ id, urlId, contacts, setContacts, type }) => {
         content={isTypeEdit ? 'Edit the link' : 'Add new link to contact'}
       />
       <Modal.Content>
-        <Form onSubmit={addNewLink}>
+        <Form onSubmit={isTypeEdit ? editLink : addNewLink}>
           <Form.Input
             required
             placeholder="For example, www.facebook.com"
             type="text"
             label="URL"
-            value={url}
-            onChange={(e) => setUrl(e.target.value)}
+            value={isTypeEdit ? editUrl : url}
+            onChange={(e) =>
+              isTypeEdit ? setEditUrl(e.target.value) : setUrl(e.target.value)
+            }
           />
           <Form.Select
             required
-            value={site}
-            label="Site Name"
+            value={isTypeEdit ? editSite : site}
             options={options}
+            label="Choose site name"
+            allowAdditions
+            selection
+            search
             placeholder="Select a site"
-            onChange={(e, data) => setSite(data.value)}
+            onChange={(e, data) =>
+              isTypeEdit ? setEditSite(data.value) : setSite(data.value)
+            }
+            onAddItem={handleOptionAddition}
           />
           <Button type="submit" color="green" floated="right">
             {isTypeEdit ? 'Edit' : 'Add'}

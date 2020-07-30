@@ -86,7 +86,11 @@ const ContactCard = ({
                   <a
                     target="_blank"
                     rel="noopener noreferrer"
-                    href={`https://${c.url}`}
+                    href={
+                      c.url.startsWith('https://' || 'http://')
+                        ? `${c.url}`
+                        : `https://${c.url}`
+                    }
                   >
                     {c.url}
                   </a>

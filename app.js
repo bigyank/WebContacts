@@ -8,9 +8,10 @@ const contactRouter = require("./routes/contacts");
 const specificContactRouter = require("./routes/specificContacts");
 const middleware = require("./utils/middleware");
 
+
 const app = express();
 
-app.use(express.static("build"));
+app.use(express.static('react-ui/build'))
 app.use(cors());
 app.use(express.json());
 

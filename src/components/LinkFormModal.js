@@ -98,6 +98,7 @@ const LinkFormModal = ({
           floated={isTypeEdit ? 'right' : 'left'}
           icon={isTypeEdit ? 'edit' : 'add'}
           content={isTypeEdit ? undefined : 'Add'}
+          className={isTypeEdit ? 'edit-btn' : 'add-btn'}
         />
       }
       open={modalOpen}

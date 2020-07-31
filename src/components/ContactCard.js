@@ -114,6 +114,7 @@ const ContactCard = ({
                     floated="right"
                     size="tiny"
                     icon="delete"
+                    className="delete-btn"
                   />
                 </List.Header>
                 <List.Description as="a">{c.site}</List.Description>

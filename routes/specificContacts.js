@@ -1,7 +1,10 @@
 const express = require("express");
 const router = express.Router();
-var createError = require("http-errors");
+const { celebrate, Segments, Joi } = require("celebrate");
+const createError = require("http-errors");
+
 const Contact = require("../models/contacts");
+const validator = require("../utils/validator");
 
 // get all contacts for a specific person
 
@@ -42,61 +45,87 @@ router.delete("/:id", async (req, res) => {
 
 // add additional urls
 
-router.post("/:id/url", async (req, res) => {
-  const { id } = req.params;
-  const body = req.body;
+router.post(
+  "/:id/url",
+  celebrate({
+    [Segments.PARAMS]: Joi.object().keys({ id: Joi.objectId() }),
+    [Segments.BODY]: validator.contactValidator,
+  }),
+  async (req, res) => {
+    const { id } = req.params;
+    const body = req.body;
 
-  const person = await Contact.findById(id);
+    const person = await Contact.findById(id);
 
-  if (!person) {
-    throw new createError.NotFound();
+    if (!person) {
+      throw new createError.NotFound();
+    }
+
+    person.contacts = [...person.contacts, body];
+    const savedPerson = await person.save();
+
+    res.status(201).send(savedPerson);
   }
-
-  person.contacts = [...person.contacts, body];
-  const savedPerson = await person.save();
-
-  res.status(201).send(savedPerson);
-});
+);
 
 // patch a url
 
-router.patch("/:id/url/:urlID", async (req, res) => {
-  const { id } = req.params;
-  const { urlID } = req.params;
-  const updatedUrl = { ...req.body, id: urlID };
+router.patch(
+  "/:id/url/:urlID",
+  celebrate({
+    [Segments.HEADERS]: Joi.object().keys({
+      id: Joi.objectId(),
+      urlID: Joi.objectId(),
+    }),
+    [Segments.BODY]: validator.contactValidator,
+  }),
+  async (req, res) => {
+    const { id } = req.params;
+    const { urlID } = req.params;
+    const updatedUrl = { ...req.body, id: urlID };
 
-  const person = await Contact.findById(id);
+    const person = await Contact.findById(id);
 
-  if (!person) {
-    throw new createError.NotFound();
+    if (!person) {
+      throw new createError.NotFound();
+    }
+
+    const urlToUpdate = person.contacts.find((url) => url.id === urlID);
+    if (!urlToUpdate) {
+      throw new createError.NotFound();
+    }
+
+    person.contacts = person.contacts.map((url) =>
+      url.id === updatedUrl.id ? updatedUrl : url
+    );
+    await person.save();
+    res.status(202).send(updatedUrl);
   }
-
-  const urlToUpdate = person.contacts.find((url) => url.id === urlID);
-  if (!urlToUpdate) {
-    throw new createError.NotFound();
-  }
-
-  person.contacts = person.contacts.map((url) =>
-    url.id === updatedUrl.id ? updatedUrl : url
-  );
-  await person.save();
-  res.status(202).send(updatedUrl);
-});
+);
 
 // delete specific url
 
-router.delete("/:id/url/:urlID", async (req, res) => {
-  const { id } = req.params;
-  const { urlID } = req.params;
-  const person = await Contact.findById(id);
+router.delete(
+  "/:id/url/:urlID",
+  celebrate({
+    [Segments.HEADERS]: Joi.object().keys({
+      id: Joi.objectId(),
+      urlID: Joi.objectId(),
+    }),
+  }),
+  async (req, res) => {
+    const { id } = req.params;
+    const { urlID } = req.params;
+    const person = await Contact.findById(id);
 
-  if (!person) {
-    throw new createError.NotFound();
+    if (!person) {
+      throw new createError.NotFound();
+    }
+
+    person.contacts = person.contacts.filter((urls) => urls.id !== urlID);
+    await person.save();
+    res.status(204).end();
   }
-
-  person.contacts = person.contacts.filter((urls) => urls.id !== urlID);
-  await person.save();
-  res.status(204).end();
-});
+);
 
 module.exports = router;

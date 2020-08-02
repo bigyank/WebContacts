@@ -3,15 +3,15 @@ const unknownEndPointHandler = (_req, res) => {
 };
 
 const errorHandler = (error, _request, response, next) => {
-  console.log(error.message);
+  console.log(error);
 
   switch (error.name) {
     case "CastError":
-      return response.status(400).send({ error: "malformatted id" });
+      return response.status(400).send({ message: "malformatted id" });
     case "ValidationError":
-      return response.status(400).send({ error: error.message });
+      return response.status(400).send({ message: error.message });
     case "NotFoundError":
-      return response.status(400).send({ error: error.message });
+      return response.status(error.statusCode).send({ error: error.message });
     default:
       next(error);
   }

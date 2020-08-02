@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { celebrate, Segments, Joi } = require("celebrate");
+const { celebrate, Segments } = require("celebrate");
 const createError = require("http-errors");
 
 const Contact = require("../models/contacts");
@@ -8,47 +8,42 @@ const validator = require("../utils/validator");
 
 // get all contacts for a specific person
 
-router.get("/:id", async (req, res) => {
-  const { id } = req.params;
-  const person = await Contact.findById(id);
-  if (!person) {
-    throw new createError.NotFound();
+router.get(
+  "/:id",
+  celebrate({
+    [Segments.PARAMS]: validator.idValidator,
+  }),
+  async (req, res) => {
+    const { id } = req.params;
+    const person = await Contact.findById(id);
+    if (!person) {
+      throw new createError.NotFound();
+    }
+
+    res.status(200).send(person);
   }
-
-  res.status(200).send(person);
-});
-
-// edit existing data
-
-// router.put("/:id", async (req, res) => {
-//   const { id } = req.params;
-//   const { body } = req;
-
-//   const updatedPerson = await Contact.findByIdAndUpdate(id, body, {
-//     new: true,
-//   });
-
-//   if (!updatedPerson) {
-//     throw new createError.NotFound();
-//   }
-
-//   res.status(200).send(updatedPerson);
-// });
+);
 
 // delete specific person
 
-router.delete("/:id", async (req, res) => {
-  const { id } = req.params;
-  await Contact.findByIdAndDelete(id);
-  res.status(204).end();
-});
+router.delete(
+  "/:id",
+  celebrate({
+    [Segments.PARAMS]: validator.idValidator,
+  }),
+  async (req, res) => {
+    const { id } = req.params;
+    await Contact.findByIdAndDelete(id);
+    res.status(204).end();
+  }
+);
 
 // add additional urls
 
 router.post(
   "/:id/url",
   celebrate({
-    [Segments.PARAMS]: Joi.object().keys({ id: Joi.objectId() }),
+    [Segments.PARAMS]: validator.idValidator,
     [Segments.BODY]: validator.contactValidator,
   }),
   async (req, res) => {
@@ -73,10 +68,7 @@ router.post(
 router.patch(
   "/:id/url/:urlID",
   celebrate({
-    [Segments.HEADERS]: Joi.object().keys({
-      id: Joi.objectId(),
-      urlID: Joi.objectId(),
-    }),
+    [Segments.PARAMS]: validator.idAndUrlIDValidator,
     [Segments.BODY]: validator.contactValidator,
   }),
   async (req, res) => {
@@ -108,10 +100,7 @@ router.patch(
 router.delete(
   "/:id/url/:urlID",
   celebrate({
-    [Segments.HEADERS]: Joi.object().keys({
-      id: Joi.objectId(),
-      urlID: Joi.objectId(),
-    }),
+    [Segments.PARAMS]: validator.idAndUrlIDValidator,
   }),
   async (req, res) => {
     const { id } = req.params;

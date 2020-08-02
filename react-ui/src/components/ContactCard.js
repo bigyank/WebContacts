@@ -1,25 +1,18 @@
-import React from 'react';
-import contactService from '../services/contacts';
-import LinkFormModal from './LinkFormModal';
-import { Card, List, Button, Icon } from 'semantic-ui-react';
+import React from "react";
+import contactService from "../services/contacts";
+import LinkFormModal from "./LinkFormModal";
+import { Card, List, Button, Icon } from "semantic-ui-react";
 
-const ContactCard = ({
-  contact,
-  contacts,
-  setContacts,
-  options,
-  handleOptionAddition,
-  notify,
-}) => {
+const ContactCard = ({ contact, contacts, setContacts, options, notify }) => {
   const handleContactDelete = async (id) => {
     if (window.confirm(`Delete contact "${contact.name}"?`)) {
       try {
         await contactService.deleteContact(id);
         setContacts(contacts.filter((c) => c.id !== id));
-        notify(`Contact '${contact.name}' deleted!`, 'green');
+        notify(`Contact '${contact.name}' deleted!`, "green");
       } catch (error) {
         console.error(error.message);
-        notify(`${error.message}`, 'red');
+        notify(`${error.message}`, "red");
       }
     }
   };
@@ -35,28 +28,17 @@ const ContactCard = ({
       try {
         await contactService.deleteLink(id, urlId);
         setContacts(contacts.map((c) => (c.id !== id ? c : updatedContact)));
-        notify(`${urlName} link '${urlLink}' deleted!`, 'green');
+        notify(`${urlName} link '${urlLink}' deleted!`, "green");
       } catch (error) {
         console.error(error.message);
-        notify(`${error.message}`, 'red');
+        notify(`${error.message}`, "red");
       }
     }
   };
 
-  const siteIcons = [
-    'facebook',
-    'github',
-    'youtube',
-    'twitter',
-    'instagram',
-    'blogger',
-    'linkedin',
-    'reddit',
-  ];
-
   return (
     <Card fluid>
-      <Card.Content style={{ justifyContent: 'center' }}>
+      <Card.Content style={{ justifyContent: "center" }}>
         <h2>
           {contact.name}
           <Button
@@ -73,26 +55,11 @@ const ContactCard = ({
         <List divided relaxed animated>
           {contact.contacts.map((c) => (
             <List.Item key={c + c.id}>
-              <List.Icon
-                name={
-                  siteIcons.includes(c.site.toLowerCase())
-                    ? c.site.toLowerCase()
-                    : 'add circle'
-                }
-                color="black"
-              />
+              <List.Icon name={c.site} color="black" />
               <List.Content>
                 <List.Header>
-                  <a
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    href={
-                      c.url.startsWith('https://' || 'http://')
-                        ? `${c.url}`
-                        : `https://${c.url}`
-                    }
-                  >
-                    {c.url}
+                  <a target="_blank" rel="noopener noreferrer" href={c.url}>
+                    {c.site.charAt(0).toUpperCase() + c.site.slice(1)}
                   </a>
                   <LinkFormModal
                     id={contact.id}
@@ -100,7 +67,6 @@ const ContactCard = ({
                     contacts={contacts}
                     setContacts={setContacts}
                     options={options}
-                    handleOptionAddition={handleOptionAddition}
                     urlToEdit={c.url}
                     siteToEdit={c.site}
                     type="edit"
@@ -117,7 +83,7 @@ const ContactCard = ({
                     className="delete-btn"
                   />
                 </List.Header>
-                <List.Description as="a">{c.site}</List.Description>
+                <List.Description as="a">{c.url}</List.Description>
               </List.Content>
             </List.Item>
           ))}
@@ -127,7 +93,6 @@ const ContactCard = ({
           contacts={contacts}
           setContacts={setContacts}
           options={options}
-          handleOptionAddition={handleOptionAddition}
           type="add"
           notify={notify}
         />

@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import contactService from '../services/contacts';
-import { Modal, Header, Form, Button } from 'semantic-ui-react';
+import React, { useState } from "react";
+import contactService from "../services/contacts";
+import { Modal, Header, Form, Button } from "semantic-ui-react";
 
 const LinkFormModal = ({
   id,
@@ -9,13 +9,12 @@ const LinkFormModal = ({
   setContacts,
   type,
   options,
-  handleOptionAddition,
   urlToEdit,
   siteToEdit,
   notify,
 }) => {
-  const [url, setUrl] = useState('');
-  const [site, setSite] = useState('');
+  const [url, setUrl] = useState("");
+  const [site, setSite] = useState("");
   const [editUrl, setEditUrl] = useState(urlToEdit);
   const [editSite, setEditSite] = useState(siteToEdit);
   const [modalOpen, setModalOpen] = useState(false);
@@ -32,7 +31,7 @@ const LinkFormModal = ({
     e.preventDefault();
 
     const newObject = {
-      url,
+      url: url.startsWith("https://") ? url : "https://".concat(url),
       site,
     };
 
@@ -40,14 +39,14 @@ const LinkFormModal = ({
       const returnedObject = await contactService.addLink(id, newObject);
       setContacts(contacts.map((c) => (c.id !== id ? c : returnedObject)));
 
-      notify(`New ${newObject.site} link '${newObject.url}' added`, 'green');
+      notify(`New ${newObject.site} link '${newObject.url}' added`, "green");
 
-      setUrl('');
-      setSite('');
+      setUrl("");
+      setSite("");
       handleClose();
     } catch (error) {
       console.error(error.message);
-      notify(`${error.message}`, 'red');
+      notify(`${error.message}`, "red");
     }
   };
 
@@ -55,17 +54,20 @@ const LinkFormModal = ({
     e.preventDefault();
 
     const newObject = {
-      url: editUrl,
+      url: editUrl.startsWith("https://")
+        ? editUrl
+        : "https://".concat(editUrl),
       site: editSite,
     };
 
     const targetContact = contacts.find((c) => c.id === id);
 
     try {
-      const returnedObject = await contactService.editLink(id, urlId, {
-        ...newObject,
-        id: urlId,
-      });
+      const returnedObject = await contactService.editLink(
+        id,
+        urlId,
+        newObject
+      );
 
       const updatedContactsKey = targetContact.contacts.map((t) =>
         t.id !== urlId ? t : returnedObject
@@ -77,37 +79,37 @@ const LinkFormModal = ({
       };
 
       setContacts(contacts.map((c) => (c.id !== id ? c : updatedContact)));
-      notify(`${newObject.site} link edited to '${newObject.url}'`, 'green');
+      notify(`${newObject.site} link edited to '${newObject.url}'`, "green");
       handleClose();
     } catch (error) {
       console.log(id, urlId, { ...newObject, id: urlId });
       console.error(error.message);
-      notify(`${error.message}`, 'red');
+      notify(`${error.message}`, "red");
     }
   };
 
-  const isTypeEdit = type === 'edit';
+  const isTypeEdit = type === "edit";
 
   return (
     <Modal
       trigger={
         <Button
-          color={isTypeEdit ? 'twitter' : 'green'}
-          size={isTypeEdit ? 'tiny' : 'small'}
+          color={isTypeEdit ? "twitter" : "green"}
+          size={isTypeEdit ? "tiny" : "small"}
           onClick={handleOpen}
-          floated={isTypeEdit ? 'right' : 'left'}
-          icon={isTypeEdit ? 'edit' : 'add'}
-          content={isTypeEdit ? undefined : 'Add'}
-          className={isTypeEdit ? 'edit-btn' : 'add-btn'}
+          floated={isTypeEdit ? "right" : "left"}
+          icon={isTypeEdit ? "edit" : "add"}
+          content={isTypeEdit ? undefined : "Add"}
+          className={isTypeEdit ? "edit-btn" : "add-btn"}
         />
       }
       open={modalOpen}
       onClose={handleClose}
       closeIcon
-      style={{ padding: '10px' }}
+      style={{ padding: "10px" }}
     >
       <Header
-        content={isTypeEdit ? 'Edit the link' : 'Add new link to contact'}
+        content={isTypeEdit ? "Edit the link" : "Add new link to contact"}
       />
       <Modal.Content>
         <Form onSubmit={isTypeEdit ? editLink : addNewLink}>
@@ -126,17 +128,15 @@ const LinkFormModal = ({
             value={isTypeEdit ? editSite : site}
             options={options}
             label="Choose site name"
-            allowAdditions
             selection
             search
             placeholder="Select a site"
             onChange={(e, data) =>
               isTypeEdit ? setEditSite(data.value) : setSite(data.value)
             }
-            onAddItem={handleOptionAddition}
           />
           <Button type="submit" color="green" floated="right">
-            {isTypeEdit ? 'Edit' : 'Add'}
+            {isTypeEdit ? "Edit" : "Add"}
           </Button>
         </Form>
       </Modal.Content>

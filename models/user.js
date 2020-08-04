@@ -2,32 +2,25 @@ const mongoose = require("mongoose");
 const uniqueValidator = require("mongoose-unique-validator");
 
 const Schema = mongoose.Schema;
-
-const sitesSchema = new Schema({
-  url: {
-    required: true,
-    trim: true,
-    type: String,
-  },
-  site: {
-    type: String,
-    required: true,
-    trim: true,
-  },
-});
-
-const contactSchema = new Schema({
-  name: {
+const userSchema = new Schema({
+  username: {
     type: String,
     required: true,
     unique: true,
+    minlength: 3,
     trim: true,
   },
-  user: {
-    type: Schema.Types.ObjectId,
-    ref: "User",
+  password: {
+    type: String,
+    require: true,
+    trim: true,
   },
-  contacts: [sitesSchema],
+  records: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "Contact",
+    },
+  ],
 });
 
 // throw error for unique items
@@ -48,9 +41,7 @@ const cleanDatabaseFields = (schemaName) => {
   });
 };
 
-cleanDatabaseFields(contactSchema);
-cleanDatabaseFields(sitesSchema);
+cleanDatabaseFields(userSchema);
 
-const Contact = mongoose.model("Contact", contactSchema);
-
-module.exports = Contact;
+const User = mongoose.model("User", userSchema);
+module.exports = User;

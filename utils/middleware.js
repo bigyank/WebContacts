@@ -3,7 +3,7 @@ const unknownEndPointHandler = (_req, res) => {
 };
 
 const errorHandler = (error, _request, response, next) => {
-  console.log(error);
+  console.log(error.name);
 
   switch (error.name) {
     case "CastError":

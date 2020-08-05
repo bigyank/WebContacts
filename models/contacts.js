@@ -35,13 +35,13 @@ contactSchema.plugin(uniqueValidator);
 
 const cleanDatabaseFields = (schemaName) => {
   /*
-   * replaces _id with id
+   * replaces _id with id (done by enabling virtuals)
    * converts _id as string from objectID
    * deletes __v before sending
    */
   schemaName.set("toJSON", {
+    virtuals: true,
     transform: (_document, returnedObject) => {
-      returnedObject.id = returnedObject._id.toString();
       delete returnedObject._id;
       delete returnedObject.__v;
     },

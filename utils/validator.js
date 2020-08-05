@@ -30,9 +30,15 @@ const idAndUrlIDValidator = Joi.object().keys({
   urlID: Joi.string().required(),
 });
 
+const authValidator = Joi.object().keys({
+  username: Joi.string().required(),
+  password: Joi.string().required(),
+});
+
 module.exports = {
   idValidator,
   idAndUrlIDValidator,
   addPersonValidator,
   contactValidator,
+  authValidator,
 };

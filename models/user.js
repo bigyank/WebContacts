@@ -24,19 +24,20 @@ const userSchema = new Schema({
 });
 
 // throw error for unique items
-contactSchema.plugin(uniqueValidator);
+userSchema.plugin(uniqueValidator);
 
 const cleanDatabaseFields = (schemaName) => {
   /*
+   * deletes password feild for security purpose
    * replaces _id with id
    * converts _id as string from objectID
    * deletes __v before sending
    */
   schemaName.set("toJSON", {
+    virtuals: true,
     transform: (_document, returnedObject) => {
-      returnedObject.id = returnedObject._id.toString();
-      delete returnedObject._id;
       delete returnedObject.__v;
+      delete returnedObject.password;
     },
   });
 };

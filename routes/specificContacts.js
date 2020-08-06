@@ -14,13 +14,16 @@ router.get(
     [Segments.PARAMS]: validator.idValidator,
   }),
   async (req, res) => {
+    const { user } = req;
     const { id } = req.params;
-    const person = await Contact.findById(id);
-    if (!person) {
+
+    const contact = await Contact.findById(id);
+
+    if (!contact || contact.user.toString() !== user.id) {
       throw new createError.NotFound();
     }
 
-    res.status(200).send(person);
+    res.status(200).send(contact);
   }
 );
 
@@ -32,7 +35,15 @@ router.delete(
     [Segments.PARAMS]: validator.idValidator,
   }),
   async (req, res) => {
+    const { user } = req;
     const { id } = req.params;
+
+    const contact = await Contact.findById(id);
+
+    if (!contact || contact.user.toString() !== user.id) {
+      throw new createError.NotFound();
+    }
+
     await Contact.findByIdAndDelete(id);
     res.status(204).end();
   }
@@ -47,19 +58,22 @@ router.post(
     [Segments.BODY]: validator.contactValidator,
   }),
   async (req, res) => {
+    const { user } = req;
     const { id } = req.params;
     const body = req.body;
 
     const person = await Contact.findById(id);
 
-    if (!person) {
+    if (!person || person.user.toString() !== user.id) {
       throw new createError.NotFound();
     }
 
     person.contacts = [...person.contacts, body];
     const savedPerson = await person.save();
 
-    res.status(201).send(savedPerson);
+    res
+      .status(201)
+      .send({ id: savedPerson.id, contacts: savedPerson.contacts });
   }
 );
 
@@ -72,13 +86,14 @@ router.patch(
     [Segments.BODY]: validator.contactValidator,
   }),
   async (req, res) => {
+    const { user } = req;
     const { id } = req.params;
     const { urlID } = req.params;
     const updatedUrl = { ...req.body, id: urlID };
 
     const person = await Contact.findById(id);
 
-    if (!person) {
+    if (!person || person.user.toString() !== user.id) {
       throw new createError.NotFound();
     }
 
@@ -90,6 +105,7 @@ router.patch(
     person.contacts = person.contacts.map((url) =>
       url.id === updatedUrl.id ? updatedUrl : url
     );
+
     await person.save();
     res.status(202).send(updatedUrl);
   }
@@ -103,11 +119,14 @@ router.delete(
     [Segments.PARAMS]: validator.idAndUrlIDValidator,
   }),
   async (req, res) => {
+    const { user } = req;
     const { id } = req.params;
     const { urlID } = req.params;
     const person = await Contact.findById(id);
 
-    if (!person) {
+    console.log(person);
+
+    if (!person || person.user !== user.id) {
       throw new createError.NotFound();
     }
 

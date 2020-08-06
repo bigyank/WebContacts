@@ -36,6 +36,7 @@ const cleanDatabaseFields = (schemaName) => {
   schemaName.set("toJSON", {
     virtuals: true,
     transform: (_document, returnedObject) => {
+      delete returnedObject._id;
       delete returnedObject.__v;
       delete returnedObject.password;
     },

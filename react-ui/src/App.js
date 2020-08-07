@@ -4,12 +4,15 @@ import AddContactForm from "./components/AddContactForm";
 import ContactsDisplay from "./components/ContactsDisplay";
 import Notification from "./components/Notification";
 import About from "./components/About";
+import Login from "./components/Login";
+import Signup from "./components/Signup";
 import contactService from "./services/contacts";
 import { Container } from "semantic-ui-react";
 
 const App = () => {
+  const [user, setUser] = useState(null);
   const [contacts, setContacts] = useState([]);
-  const [page, setPage] = useState("Home");
+  const [page, setPage] = useState("Login");
   const [notification, setNotification] = useState(null);
 
   const options = [
@@ -21,10 +24,23 @@ const App = () => {
   ];
 
   useEffect(() => {
-    contactService.getAll().then((contacts) => {
-      setContacts(contacts);
-    });
+    const loggedUserJson = window.localStorage.getItem("loggedUser");
+    if (loggedUserJson) {
+      setUser(JSON.parse(loggedUserJson));
+      setPage("Home");
+    }
   }, []);
+
+  useEffect(() => {
+    const getAllContacts = async () => {
+      const contacts = await contactService.getAll();
+      setContacts(contacts);
+    };
+    if (user) {
+      getAllContacts();
+      setPage("Home");
+    }
+  }, [user]);
 
   let timeoutId = null;
 
@@ -38,8 +54,14 @@ const App = () => {
 
   return (
     <Container>
-      <NavBar page={page} setPage={setPage} />
-      {page === "Home" ? (
+      <NavBar
+        page={page}
+        setPage={setPage}
+        user={user}
+        setUser={setUser}
+        setContacts={setContacts}
+      />
+      {page === "Home" && (
         <>
           <Notification notification={notification} />
           <AddContactForm
@@ -54,11 +76,10 @@ const App = () => {
             notify={notify}
           />
         </>
-      ) : (
-        <>
-          <About />
-        </>
       )}
+      {page === "About" && <About />}
+      {page === "Login" && <Login setUser={setUser} />}
+      {page === "Signup" && <Signup setUser={setUser} />}
     </Container>
   );
 };

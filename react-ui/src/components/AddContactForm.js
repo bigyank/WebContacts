@@ -28,7 +28,6 @@ const AddContactForm = ({ setContacts, options, notify }) => {
       setUrl("");
       setSite("");
     } catch (error) {
-      console.error(error.response.data.message);
       notify(`${error.response.data.message}`, "red");
     }
   };

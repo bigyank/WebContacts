@@ -124,9 +124,8 @@ router.delete(
     const { urlID } = req.params;
     const person = await Contact.findById(id);
 
-    console.log(person);
-
-    if (!person || person.user !== user.id) {
+    if (!person || person.user.toString() !== user.id) {
+      console.log("here");
       throw new createError.NotFound();
     }
 

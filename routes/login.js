@@ -3,6 +3,7 @@ const router = express.Router();
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const { celebrate, Segments } = require("celebrate");
+const createError = require("http-errors");
 
 const User = require("../models/user");
 const validator = require("../utils/validator");
@@ -24,7 +25,7 @@ router.post(
         : await bcrypt.compare(credentials.password, user.password);
 
     if (!validUser) {
-      return res.status(401).send({ error: "Invalid credentials" });
+      throw createError(400, "Username or Password is Incorrect");
     }
 
     // create JWT

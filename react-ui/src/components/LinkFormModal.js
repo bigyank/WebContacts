@@ -45,8 +45,7 @@ const LinkFormModal = ({
       setSite("");
       handleClose();
     } catch (error) {
-      console.error(error.message);
-      notify(`${error.message}`, "red");
+      notify(`${error.response.data.message}`, "red");
     }
   };
 
@@ -82,9 +81,7 @@ const LinkFormModal = ({
       notify(`${newObject.site} link edited to '${newObject.url}'`, "green");
       handleClose();
     } catch (error) {
-      console.log(id, urlId, { ...newObject, id: urlId });
-      console.error(error.message);
-      notify(`${error.message}`, "red");
+      notify(`${error.response.data.message}`, "red");
     }
   };
 

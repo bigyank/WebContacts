@@ -12,6 +12,8 @@ const errorHandler = (error, _request, response, next) => {
       return response.status(400).send({ message: error.message });
     case "NotFoundError":
       return response.status(error.statusCode).send({ message: error.message });
+    case "BadRequestError":
+      return response.status(error.statusCode).send({ message: error.message });
     default:
       next(error);
   }

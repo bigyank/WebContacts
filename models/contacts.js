@@ -20,7 +20,6 @@ const contactSchema = new Schema({
   name: {
     type: String,
     required: true,
-    unique: true,
     trim: true,
   },
   user: {

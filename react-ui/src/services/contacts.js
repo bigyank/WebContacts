@@ -46,12 +46,8 @@ const addLink = async (id, object) => {
   return response.data;
 };
 
-const editLink = async (id, urlId, object) => {
-  const response = await axios.patch(
-    `${baseUrl}/${id}/url/${urlId}`,
-    object,
-    config()
-  );
+const editLink = async (id, object) => {
+  const response = await axios.put(`${baseUrl}/${id}`, object, config());
   return response.data;
 };
 

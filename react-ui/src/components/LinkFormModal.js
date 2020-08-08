@@ -53,33 +53,27 @@ const LinkFormModal = ({
     e.preventDefault();
 
     const newObject = {
+      id: urlId,
       url: editUrl.startsWith("https://")
         ? editUrl
         : "https://".concat(editUrl),
       site: editSite,
     };
 
-    const targetContact = contacts.find((c) => c.id === id);
+    let targetContact = contacts.find((c) => c.id === id);
+
+    const updatedUrls = targetContact.contacts.map((url) =>
+      url.id === urlId ? newObject : url
+    );
+
+    const updatedContact = { ...targetContact, contacts: updatedUrls };
 
     try {
-      const returnedObject = await contactService.editLink(
-        id,
-        urlId,
-        newObject
-      );
+      const returnedContact = await contactService.editLink(id, updatedContact);
 
-      const updatedContactsKey = targetContact.contacts.map((t) =>
-        t.id !== urlId ? t : returnedObject
-      );
-
-      const updatedContact = {
-        ...targetContact,
-        contacts: updatedContactsKey,
-      };
-
-      setContacts(contacts.map((c) => (c.id !== id ? c : updatedContact)));
-      notify(`${newObject.site} link edited to '${newObject.url}'`, "green");
       handleClose();
+      setContacts(contacts.map((c) => (c.id !== id ? c : returnedContact)));
+      notify(`${newObject.site} link edited to '${newObject.url}'`, "green");
     } catch (error) {
       notify(`${error.response.data.message}`, "red");
     }

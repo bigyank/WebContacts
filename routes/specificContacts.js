@@ -71,25 +71,25 @@ router.post(
     person.contacts = [...person.contacts, body];
     const savedPerson = await person.save();
 
-    res
-      .status(201)
-      .send({ id: savedPerson.id, contacts: savedPerson.contacts });
+    res.status(201).send({
+      id: savedPerson.id,
+      contacts: savedPerson.contacts,
+      name: savedPerson.name,
+    });
   }
 );
 
 // patch a url
 
-router.patch(
-  "/:id/url/:urlID",
+router.put(
+  "/:id",
   celebrate({
-    [Segments.PARAMS]: validator.idAndUrlIDValidator,
-    [Segments.BODY]: validator.contactValidator,
+    [Segments.PARAMS]: validator.idValidator,
   }),
   async (req, res) => {
     const { user } = req;
     const { id } = req.params;
-    const { urlID } = req.params;
-    const updatedUrl = { ...req.body, id: urlID };
+    const { body } = req;
 
     const person = await Contact.findById(id);
 
@@ -97,17 +97,11 @@ router.patch(
       throw new createError.NotFound();
     }
 
-    const urlToUpdate = person.contacts.find((url) => url.id === urlID);
-    if (!urlToUpdate) {
-      throw new createError.NotFound();
-    }
+    const updatedContact = await Contact.findByIdAndUpdate(id, body, {
+      new: true,
+    });
 
-    person.contacts = person.contacts.map((url) =>
-      url.id === updatedUrl.id ? updatedUrl : url
-    );
-
-    await person.save();
-    res.status(202).send(updatedUrl);
+    res.status(202).send(updatedContact);
   }
 );
 

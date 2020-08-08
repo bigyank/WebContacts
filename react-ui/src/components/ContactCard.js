@@ -4,10 +4,12 @@ import LinkFormModal from "./LinkFormModal";
 import { Card, List, Button, Confirm, Icon } from "semantic-ui-react";
 
 const ContactCard = ({ contact, contacts, setContacts, options, notify }) => {
-  const [open, setOpen] = useState(false);
+  const [urlDeleteConfirm, setUrlDeleteConfirm] = useState(false);
+  const [urlToDelete, setUrlToDelete] = useState(null);
+  const [contactDeleteConfirm, setContactDeleteConfirm] = useState(false);
 
   const handleContactDelete = async (id) => {
-    setOpen(false);
+    setContactDeleteConfirm(false);
     try {
       await contactService.deleteContact(id);
       setContacts(contacts.filter((c) => c.id !== id));
@@ -17,8 +19,11 @@ const ContactCard = ({ contact, contacts, setContacts, options, notify }) => {
     }
   };
 
-  const handleLinkDelete = async (id, urlId, urlLink, urlName) => {
-    setOpen(false);
+  const handleLinkDelete = async () => {
+    setUrlDeleteConfirm(false);
+
+    const { id, urlId, urlLink, urlName } = urlToDelete;
+
     const targetContact = contacts.find((c) => c.id === id);
     const updatedContactsKey = targetContact.contacts.filter(
       (t) => t.id !== urlId
@@ -41,7 +46,7 @@ const ContactCard = ({ contact, contacts, setContacts, options, notify }) => {
           {contact.name}
           <Button
             onClick={() => {
-              setOpen(true);
+              setContactDeleteConfirm(true);
             }}
             color="red"
             floated="right"
@@ -51,9 +56,9 @@ const ContactCard = ({ contact, contacts, setContacts, options, notify }) => {
           </Button>
         </h2>
         <Confirm
-          open={open}
+          open={contactDeleteConfirm}
           onCancel={() => {
-            setOpen(false);
+            setContactDeleteConfirm(false);
           }}
           onConfirm={() => handleContactDelete(contact.id)}
         />
@@ -61,7 +66,7 @@ const ContactCard = ({ contact, contacts, setContacts, options, notify }) => {
       <Card.Content>
         <List divided relaxed animated>
           {contact.contacts.map((c) => (
-            <List.Item key={c + c.id}>
+            <List.Item key={c.id}>
               <List.Icon name={c.site} color="black" />
               <List.Content>
                 <List.Header>
@@ -79,27 +84,34 @@ const ContactCard = ({ contact, contacts, setContacts, options, notify }) => {
                     type="edit"
                     notify={notify}
                   />
-                  <Button
-                    color="google plus"
-                    onClick={() => {
-                      setOpen(true);
-                    }}
-                    floated="right"
-                    size="tiny"
-                    icon="delete"
-                    className="delete-btn"
-                  />
+                  <>
+                    <Button
+                      color="google plus"
+                      onClick={() => {
+                        setUrlToDelete({
+                          id: contact.id,
+                          urlId: c.id,
+                          urlLink: c.url,
+                          urlName: c.site,
+                        });
+                        setUrlDeleteConfirm(true);
+                      }}
+                      floated="right"
+                      size="tiny"
+                      icon="delete"
+                      className="delete-btn"
+                    />
+                    <Confirm
+                      open={urlDeleteConfirm}
+                      onCancel={() => {
+                        setUrlToDelete(null);
+                        setUrlDeleteConfirm(false);
+                      }}
+                      onConfirm={() => handleLinkDelete()}
+                    />
+                  </>
                 </List.Header>
                 <List.Description as="a">{c.url}</List.Description>
-                <Confirm
-                  open={open}
-                  onCancel={() => {
-                    setOpen(false);
-                  }}
-                  onConfirm={() =>
-                    handleLinkDelete(contact.id, c.id, c.url, c.site)
-                  }
-                />
               </List.Content>
             </List.Item>
           ))}
